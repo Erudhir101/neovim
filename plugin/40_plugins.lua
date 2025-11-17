@@ -21,6 +21,19 @@ later(function()
 	add({ source = "tpope/vim-fugitive" })
 end)
 
+-- grug-far ================================================================
+
+later(function()
+	add({ source = "MagicDuck/grug-far.nvim" })
+	local grug = require("grug-far")
+
+	grug.setup({})
+
+	vim.keymap.set("n", "<Leader>os", function()
+		grug.open()
+	end, { desc = "grug-far open" })
+end)
+
 -- flash ================================================================
 later(function()
 	add({ source = "folke/flash.nvim" })
