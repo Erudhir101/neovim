@@ -112,7 +112,6 @@ nmap_leader('e', '<Cmd>lua if not MiniFiles.close() then MiniFiles.open() end<CR
 nmap_leader('Ef', explore_at_file,                          'File directory')
 nmap_leader('Ei', '<Cmd>edit $MYVIMRC<CR>',                 'init.lua')
 nmap_leader('En', '<Cmd>lua MiniNotify.show_history()<CR>', 'Notifications')
-nmap_leader('Eq', explore_quickfix,                         'Quickfix')
 
 -- f is for 'Fuzzy Find'. Common usage:
 -- - `<Leader>ff` - find files; for best performance requires `ripgrep`
@@ -149,6 +148,7 @@ nmap_leader('fS', '<Cmd>Pick lsp scope="document_symbol"<CR>',  'Symbols documen
 nmap_leader('fv', '<Cmd>Pick visit_paths cwd=""<CR>',           'Visit paths (all)')
 nmap_leader('fV', '<Cmd>Pick visit_paths<CR>',                  'Visit paths (cwd)')
 nmap_leader('fk', '<Cmd>Pick keymaps<CR>',                      'Shows keymaps')
+nmap_leader('fq', explore_quickfix,                             'Quickfix')
 
 -- g is for 'Git'. Common usage:
 -- - `<Leader>gs` - show information at cursor
