@@ -76,7 +76,8 @@ now(function()
 	-- Set up to not prefer extension-based icon for some extensions
 	local ext3_blocklist = { scm = true, txt = true, yml = true }
 	local ext4_blocklist = { json = true, yaml = true }
-	require("mini.icons").setup({
+	local MiniIcons = require("mini.icons")
+	MiniIcons.setup({
 		use_file_extension = function(ext, _)
 			return not (ext3_blocklist[ext:sub(-3)] or ext4_blocklist[ext:sub(-4)])
 		end,
@@ -101,7 +102,8 @@ end)
 -- Uses `now()` for `setup_xxx()` to work when started like `nvim -- path/to/file`
 now_if_args(function()
 	-- Makes `:h MiniMisc.put()` and `:h MiniMisc.put_text()` public
-	require("mini.misc").setup()
+	local MiniMisc = require("mini.misc")
+	MiniMisc.setup()
 
 	-- Change current working directory based on the current file path. It
 	-- searches up the file tree until the first root marker ('.git' or 'Makefile')
@@ -263,9 +265,9 @@ end)
 -- - `<Leader>bw` - completely wipeout current buffer (see `:h :bwipeout`)
 -- - `<Leader>bW` - completely wipeout current buffer even if it has changes
 -- - `<Leader>bd` - delete current buffer (see `:h :bdelete`)
-later(function()
-	require("mini.bufremove").setup()
-end)
+-- later(function()
+-- 	require("mini.bufremove").setup()
+-- end)
 
 -- Show next key clues in a bottom right window. Requires explicit opt-in for
 -- keys that act as clue trigger. Example usage:
@@ -491,7 +493,8 @@ end)
 -- - `:h MiniFiles-examples` - examples of common setups
 later(function()
 	-- Enable directory/file preview
-	require("mini.files").setup({ windows = { preview = false } })
+	local MiniFiles = require("mini.files")
+	MiniFiles.setup({ windows = { preview = false } })
 
 	-- Add common bookmarks for every explorer. Example usage inside explorer:
 	-- - `'c` to navigate into your config directory
@@ -504,20 +507,6 @@ later(function()
 	end
 	_G.Config.new_autocmd("User", "MiniFilesExplorerOpen", add_marks, "Add bookmarks")
 end)
-
--- Git integration for more straightforward Git actions based on Neovim's state.
--- It is not meant as a fully featured Git client, only to provide helpers that
--- integrate better with Neovim. Example usage:
--- - `<Leader>gs` - show information at cursor
--- - `<Leader>gd` - show unstaged changes as a patch in separate tabpage
--- - `<Leader>gL` - show Git log of current file
--- - `:Git help git` - show output of `git help git` inside Neovim
---
--- See also:
--- - `:h MiniGit-examples` - examples of common setups
--- - `:h :Git` - more details about `:Git` user command
--- - `:h MiniGit.show_at_cursor()` - what information at cursor is shown
--- later(function() require('mini.git').setup() end)
 
 -- Highlight patterns in text. Like `TODO`/`NOTE` or color hex codes.
 -- Example usage:
@@ -593,7 +582,8 @@ end)
 -- - `:h MiniKeymap.map_multistep()` - map multi-step action
 -- - `:h MiniKeymap.map_combo()` - map combo
 later(function()
-	require("mini.keymap").setup()
+	local MiniKeymap = require("mini.keymap")
+	MiniKeymap.setup()
 	require("mini.keymap").map_combo({ "i", "c", "x", "s" }, "jk", "<BS><BS><Esc>")
 	-- Navigate 'mini.completion' menu with `<Tab>` /  `<S-Tab>`
 	MiniKeymap.map_multistep("i", "<Tab>", { "pmenu_next" })
@@ -811,14 +801,14 @@ later(function()
 		markdown_inline = { "markdown.json" },
 	}
 
-	local snippets = require("mini.snippets")
+	local MiniSnippets = require("mini.snippets")
 	local config_path = vim.fn.stdpath("config")
-	snippets.setup({
+	MiniSnippets.setup({
 		snippets = {
 			-- Always load 'snippets/global.json' from config directory
-			snippets.gen_loader.from_file(config_path .. "/snippets/global.json"),
+			MiniSnippets.gen_loader.from_file(config_path .. "/snippets/global.json"),
 			-- Load from 'snippets/' directory of plugins, like 'friendly-snippets'
-			snippets.gen_loader.from_lang({ lang_patterns = lang_patterns }),
+			MiniSnippets.gen_loader.from_lang({ lang_patterns = lang_patterns }),
 		},
 	})
 
