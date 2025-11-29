@@ -206,7 +206,7 @@ later(function()
     -- 'mini.ai' can be extended with custom textobjects
     custom_textobjects = {
       -- Make `aB` / `iB` act on around/inside whole *b*uffer
-      B = MiniExtra.gen_ai_spec.buffer(),
+      B = require("mini.extra").gen_ai_spec.buffer(),
       -- For more complicated textobjects that require structural awareness,
       -- use tree-sitter. This example makes `aF`/`iF` mean around/inside function
       -- definition (not call). See `:h MiniAi.gen_spec.treesitter()` for details.
@@ -265,9 +265,9 @@ end)
 -- - `<Leader>bw` - completely wipeout current buffer (see `:h :bwipeout`)
 -- - `<Leader>bW` - completely wipeout current buffer even if it has changes
 -- - `<Leader>bd` - delete current buffer (see `:h :bdelete`)
--- later(function()
--- 	require("mini.bufremove").setup()
--- end)
+later(function()
+  require("mini.bufremove").setup()
+end)
 
 -- Show next key clues in a bottom right window. Requires explicit opt-in for
 -- keys that act as clue trigger. Example usage:
@@ -516,7 +516,7 @@ end)
 -- - `:h MiniHipatterns-examples` - examples of common setups
 later(function()
   local hipatterns = require("mini.hipatterns")
-  local hi_words = MiniExtra.gen_highlighter.words
+  local hi_words = require("mini.extra").gen_highlighter.words
   hipatterns.setup({
     highlighters = {
       -- Highlight a fixed set of common words. Will be highlighted in any place,
@@ -678,42 +678,46 @@ end)
 -- - `:h MiniPick.builtin` and `:h MiniExtra.pickers` - available pickers;
 --   Execute one either with Lua function, `:Pick <picker-name>` command, or
 --   one of `<Leader>f` mappings defined in 'plugin/20_keymaps.lua'
--- later(function()
--- 	require("mini.pick").setup({
--- 		window = {
--- 			config = function()
--- 				local height, width, starts, ends
--- 				local win_width = vim.o.columns
--- 				local win_height = vim.o.lines
--- 				if win_height <= 25 then
--- 					height = math.min(win_height, 18)
--- 					width = win_width
--- 					starts = 1
--- 					ends = win_height
--- 				else
--- 					width = math.floor(win_width * 0.5) -- 50%
--- 					height = math.floor(win_height * 0.3) -- 30%
--- 					starts = math.floor((win_width - width) / 2)
--- 					-- center prompt: height * (50% + 30%)
--- 					-- center window: height * [50% + (30% / 2)]
--- 					ends = math.floor(win_height * 0.65)
--- 				end
--- 				return {
--- 					col = starts,
--- 					row = ends,
--- 					height = height,
--- 					width = width,
--- 				}
--- 			end,
---
--- 			-- String to use as cursor in prompt
--- 			prompt_caret = "|",
---
--- 			-- String to use as prefix in prompt
--- 			prompt_prefix = "",
--- 		},
--- 	})
--- end)
+later(function()
+  local pick = require("mini.pick")
+  local bufremove = require("mini.bufremove")
+  pick.setup()
+
+  vim.keymap.set("n", '<leader>ft', function()
+    pick.builtin.grep({
+      pattern = '\\b(TODO|FIXME|HACK|NOTE|Todo|Fixme|Hack|Note|todo|fixme|hack|note)\\b',
+    })
+  end, { desc = 'todo comments' })
+
+  --- keymap 'C-d' for delete marked items or cursor on item in buffer
+  pick.registry.buffers = function(local_opts)
+    local wipeout_cur = function()
+      local exclude_map = {}
+      local matches = pick.get_picker_matches()
+
+      if vim.tbl_count(matches.marked) > 0 then
+        for _, mark in pairs(matches.marked) do
+          if mark == nil then return end
+          exclude_map[mark.bufnr] = true
+          bufremove.delete(mark.bufnr)
+        end
+      elseif matches.current then
+        exclude_map[matches.current.bufnr] = true
+        bufremove.delete(matches.current.bufnr)
+      end
+
+      local filter = vim.tbl_filter(function(value)
+        return not exclude_map[value.bufnr]
+      end, pick.get_picker_items())
+      pick.set_picker_items(filter)
+    end
+
+    local buffer_mappings = { wipeout = { char = '<C-d>', func = wipeout_cur } }
+    pick.builtin.buffers(local_opts, { mappings = buffer_mappings })
+  end
+end)
+
+
 
 -- Manage and expand snippets (templates for a frequently used text).
 -- Typical workflow is to type snippet's (configurable) prefix and expand it

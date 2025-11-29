@@ -102,26 +102,22 @@ nmap_leader('En', '<Cmd>lua MiniNotify.show_history()<CR>', 'Notifications')
 -- - `<Leader>fv` - all visited paths; requires 'mini.visits'
 --
 -- All these use 'mini.pick'. See `:h MiniPick-overview` for an overview.
--- local pick_added_hunks_buf = '<Cmd>Pick git_hunks path="%" scope="staged"<CR>'
-
-nmap_leader('ff', '<Cmd>FzfLua files<CR>', 'Files')
-nmap_leader('fg', '<Cmd>FzfLua live_grep<CR>', 'Grep')
-nmap_leader('fG', '<Cmd>FzfLua grep_cword<CR>', 'Grep current word')
-nmap_leader('fh', '<Cmd>FzfLua helptags<CR>', 'Help')
-nmap_leader('fH', '<Cmd>FzfLua manpages<CR>', 'all Manuals')
-nmap_leader('fb', '<Cmd>FzfLua buffers<CR>', 'Buffers')
-nmap_leader('f:', '<Cmd>FzfLua command_history<CR>', 'Command History')
-nmap_leader('f/', '<Cmd>FzfLua search_history<CR>', 'Search History')
-nmap_leader('fd', '<Cmd>FzfLua diagnostics_document<CR>', 'Diagnostics')
-nmap_leader('fD', '<Cmd>FzfLua diagnostics_workspace<CR>', 'Buffer Diagnostics')
-nmap_leader('fs', '<Cmd>FzfLua lsp_document_symbols<CR>', 'Document Symbols')
-nmap_leader('fS', '<Cmd>FzfLua lsp_workspace_symbols<CR>', 'Workspace Symbols')
-nmap_leader('fk', '<Cmd>FzfLua keymaps<CR>', 'Keymaps')
-nmap_leader('fm', '<Cmd>FzfLua marks<CR>', 'Marks')
-nmap_leader('fj', '<Cmd>FzfLua jumps<CR>', 'Jumps')
-nmap_leader('fr', '<Cmd>FzfLua resume<CR>', 'Resume')
-nmap_leader('fZ', '<Cmd>FzfLua spellcheck<CR>', 'Spelling')
-nmap_leader('fz', '<Cmd>FzfLua spell_suggest<CR>', 'Spell Suggest')
+nmap_leader('f/', '<Cmd>Pick history scope="/"<CR>', '"/" history')
+nmap_leader('f:', '<Cmd>Pick history scope=":"<CR>', '":" history')
+nmap_leader('fb', '<Cmd>Pick buffers<CR>', 'Buffers')
+nmap_leader('fd', '<Cmd>Pick diagnostic scope="all"<CR>', 'Diagnostic workspace')
+nmap_leader('fD', '<Cmd>Pick diagnostic scope="current"<CR>', 'Diagnostic buffer')
+nmap_leader('ff', '<Cmd>Pick files<CR>', 'Files')
+nmap_leader('fg', '<Cmd>Pick grep_live<CR>', 'Grep live')
+nmap_leader('fG', '<Cmd>Pick grep pattern="<cword>"<CR>', 'Grep current word')
+nmap_leader('fh', '<Cmd>Pick help<CR>', 'Help tags')
+nmap_leader('fH', '<Cmd>Pick hipatterns<CR>', 'Hipatterns')
+nmap_leader('fR', '<Cmd>Pick resume<CR>', 'Resume')
+nmap_leader('fk', '<Cmd>Pick keymaps<CR>', 'Keymaps')
+nmap_leader('fr', '<Cmd>Pick lsp scope="references"<CR>', 'References (LSP)')
+nmap_leader('fs', '<Cmd>Pick lsp scope="workspace_symbol_live"<CR>', 'Symbols workspace (live)')
+nmap_leader('fS', '<Cmd>Pick lsp scope="document_symbol"<CR>', 'Symbols document')
+nmap_leader('fz', '<Cmd>Pick spellsuggest<CR>', 'SpellSuggest')
 
 nmap_leader('fq', explore_quickfix, 'Quickfix')
 
@@ -151,7 +147,7 @@ end, 'Inlay hint toggle')
 
 -- o is for 'Other'. Common usage:
 -- - `<Leader>oz` - toggle between "zoomed" and regular view of current buffer
-nmap_leader('or', '<Cmd>lua MiniMisc.resize_window()<CR>', 'Resize to default width')
+-- nmap_leader('or', '<Cmd>lua MiniMisc.resize_window()<CR>', 'Resize to default width')
 nmap_leader('ot', '<Cmd>lua MiniTrailspace.trim()<CR>', 'Trim trailspace')
 -- nmap_leader('oz', '<Cmd>lua MiniMisc.zoom()<CR>',          'Zoom toggle')
 
