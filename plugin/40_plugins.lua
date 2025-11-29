@@ -12,14 +12,6 @@
 local add, later, now = MiniDeps.add, MiniDeps.later, MiniDeps.now
 local now_if_args = _G.Config.now_if_args
 
--- folke ================================================================
-
-later(function()
-  add({ source = "ibhagwan/fzf-lua" })
-  local fzf = require("fzf-lua")
-  fzf.setup()
-end)
-
 -- grug-far ================================================================
 
 later(function()
