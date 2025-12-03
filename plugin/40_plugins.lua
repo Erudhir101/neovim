@@ -241,13 +241,15 @@ now_if_args(function()
     "tailwindcss",
     "vtsls",
     "eslint_d",
+    "zls"
   })
-  vim.diagnostic.config({ virtual_lines = false })
+  -- vim.diagnostic.config({ virtual_lines = false })
   vim.lsp.config("eslint_d", {})
   vim.lsp.config("ts_ls", {})
   vim.lsp.config("vtsls", {})
   vim.lsp.config("prettierd", {})
   vim.lsp.config("tailwindcss", {})
+  vim.lsp.config("zls", {})
   -- Use `:h vim.lsp.enable()` to automatically enable language server based on
   -- the rules provided by 'nvim-lspconfig'.
   -- Use `:h vim.lsp.config()` or 'ftplugin/lsp/' directory to configure servers.

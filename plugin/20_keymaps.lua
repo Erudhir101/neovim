@@ -81,7 +81,7 @@ end
 -- local edit_plugin_file = function(filename)
 --   return string.format('<Cmd>edit %s/plugin/%s<CR>', vim.fn.stdpath('config'), filename)
 -- end
-local explore_at_file = '<Cmd>lua MiniFiles.open(vim.api.nvim_buf_get_name(0))<CR>'
+
 local explore_quickfix = function()
   for _, win_id in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
     if vim.fn.getwininfo(win_id)[1].quickfix == 1 then return vim.cmd('cclose') end
@@ -89,7 +89,10 @@ local explore_quickfix = function()
   vim.cmd('copen')
 end
 
-nmap_leader('e', '<Cmd>lua if not MiniFiles.close() then MiniFiles.open() end<CR>', 'Directory')
+local explore_toggle = '<Cmd>lua if not MiniFiles.close() then MiniFiles.open() end<CR>'
+local explore_at_file = '<Cmd>lua if not MiniFiles.close() then MiniFiles.open(vim.api.nvim_buf_get_name(0)) end<CR>'
+
+nmap_leader('e', explore_toggle, 'Directory')
 nmap_leader('Ef', explore_at_file, 'File directory')
 nmap_leader('Ei', '<Cmd>edit $MYVIMRC<CR>', 'init.lua')
 nmap_leader('En', '<Cmd>lua MiniNotify.show_history()<CR>', 'Notifications')
