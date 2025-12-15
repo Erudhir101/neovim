@@ -34,13 +34,54 @@ later(function()
     search = {
       mode = "search",
     },
-    char = {
-      enabled = false,
+    modes = {
+      char = {
+        enabled = false,
+      }
     },
   })
 
+  local function format(opts)
+    return { { opts.match.label1, "FlashMatch" },
+      { opts.match.label2, "FlashLabel" }
+    }
+  end
+
+  local opts = {
+    search = { mode = "search" },
+    label = { after = false, before = { 0, 0 }, uppercase = false, format = format },
+    pattern = [[\<]],
+    action = function(match, state)
+      state:hide()
+      flash.jump({
+        search = { max_length = 0 },
+        highlight = { matches = false },
+        label = { format = format },
+        matcher = function(win)
+          -- limit matches to the current label
+          return vim.tbl_filter(function(m)
+            return m.label == match.label and m.win == win
+          end, state.results)
+        end,
+        labeler = function(matches)
+          for _, m in ipairs(matches) do
+            m.label = m.label2 -- use the second label
+          end
+        end,
+      })
+    end,
+    labeler = function(matches, state)
+      local labels = state:labels()
+      for m, match in ipairs(matches) do
+        match.label1 = labels[math.floor((m - 1) / #labels) + 1]
+        match.label2 = labels[(m - 1) % #labels + 1]
+        match.label = match.label1
+      end
+    end,
+  }
+
   vim.keymap.set({ "n", "x", "o" }, ";f", function()
-    flash.jump()
+    flash.jump(opts)
   end, { desc = "flash Jump" })
   vim.keymap.set({ "n", "x", "o" }, ";s", function()
     flash.treesitter()
@@ -146,75 +187,75 @@ local function build_blink(params)
   end
 end
 
-now(function()
-  add({
-    source = "saghen/blink.cmp",
-    depends = { "rafamadriz/friendly-snippets", "echasnovski/mini.icons" },
-    -- checkout = "1.6.0",
-    hooks = {
-      post_install = build_blink,
-      post_checkout = build_blink,
-    },
-  })
-  local border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
-  require("blink.cmp").setup({
-    keymap = { preset = "default", ["<C-y>"] = { "accept", "fallback" } },
-    appearance = {
-      nerd_font_variant = "mono",
-    },
-    fuzzy = { implementation = "lua" },
-    completion = {
-      keyword = { range = "full" },
-      menu = {
-        auto_show = true,
-        border = border,
-        draw = {
-          columns = {
-            { "kind_icon", "kind",              gap = 1 },
-            { "label",     "label_description", gap = 1 },
-          },
-          components = {
-            kind_icon = {
-              text = function(ctx)
-                local kind_icon, _, _ = require("mini.icons").get("lsp", ctx.kind)
-                return kind_icon
-              end,
-              highlight = function(ctx)
-                local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
-                return hl
-              end,
-            },
-            kind = {
-              highlight = function(ctx)
-                local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
-                return hl
-              end,
-            },
-          },
-        },
-      },
-      documentation = {
-        window = {
-          border = border,
-        },
-        auto_show = true,
-      },
-      trigger = {
-        show_on_keyword = true,
-      },
-    },
-    sources = {
-      default = { "lsp", "path", "snippets", "buffer" },
-    },
-  })
-
-  local on_attach = function(ev)
-    vim.bo[ev.buf].omnifunc = "v:lua.vim.lsp.omnifunc"
-  end
-  _G.Config.new_autocmd("LspAttach", nil, on_attach, "Set 'omnifunc'")
-
-  vim.lsp.config("*", require("blink.cmp").get_lsp_capabilities())
-end)
+-- now(function()
+--   add({
+--     source = "saghen/blink.cmp",
+--     depends = { "rafamadriz/friendly-snippets", "echasnovski/mini.icons" },
+--     -- checkout = "1.6.0",
+--     hooks = {
+--       post_install = build_blink,
+--       post_checkout = build_blink,
+--     },
+--   })
+--   local border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
+--   require("blink.cmp").setup({
+--     keymap = { preset = "default", ["<C-y>"] = { "accept", "fallback" } },
+--     appearance = {
+--       nerd_font_variant = "mono",
+--     },
+--     fuzzy = { implementation = "lua" },
+--     completion = {
+--       keyword = { range = "full" },
+--       menu = {
+--         auto_show = true,
+--         border = border,
+--         draw = {
+--           columns = {
+--             { "kind_icon", "kind",              gap = 1 },
+--             { "label",     "label_description", gap = 1 },
+--           },
+--           components = {
+--             kind_icon = {
+--               text = function(ctx)
+--                 local kind_icon, _, _ = require("mini.icons").get("lsp", ctx.kind)
+--                 return kind_icon
+--               end,
+--               highlight = function(ctx)
+--                 local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
+--                 return hl
+--               end,
+--             },
+--             kind = {
+--               highlight = function(ctx)
+--                 local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
+--                 return hl
+--               end,
+--             },
+--           },
+--         },
+--       },
+--       documentation = {
+--         window = {
+--           border = border,
+--         },
+--         auto_show = true,
+--       },
+--       trigger = {
+--         show_on_keyword = true,
+--       },
+--     },
+--     sources = {
+--       default = { "lsp", "path", "snippets", "buffer" },
+--     },
+--   })
+--
+--   local on_attach = function(ev)
+--     vim.bo[ev.buf].omnifunc = "v:lua.vim.lsp.omnifunc"
+--   end
+--   _G.Config.new_autocmd("LspAttach", nil, on_attach, "Set 'omnifunc'")
+--
+--   vim.lsp.config("*", require("blink.cmp").get_lsp_capabilities())
+-- end)
 -- Language servers ===========================================================
 
 -- Language Server Protocol (LSP) is a set of conventions that power creation of
@@ -234,21 +275,23 @@ now_if_args(function()
   add("neovim/nvim-lspconfig")
 
   vim.lsp.enable({
+    "clangd",
+    "eslint_d",
     "lua_ls",
     "prettierd",
     "stylua",
     "svelte",
     "tailwindcss",
     "vtsls",
-    "eslint_d",
-    "zls"
+    "zls",
   })
   -- vim.diagnostic.config({ virtual_lines = false })
+  vim.lsp.config("clangd", {})
   vim.lsp.config("eslint_d", {})
-  vim.lsp.config("ts_ls", {})
-  vim.lsp.config("vtsls", {})
   vim.lsp.config("prettierd", {})
   vim.lsp.config("tailwindcss", {})
+  vim.lsp.config("ts_ls", {})
+  vim.lsp.config("vtsls", {})
   vim.lsp.config("zls", {})
   -- Use `:h vim.lsp.enable()` to automatically enable language server based on
   -- the rules provided by 'nvim-lspconfig'.
@@ -409,4 +452,5 @@ add("folke/tokyonight.nvim")
 --
 --   -- Enable only one
 vim.cmd("color tokyonight")
+-- vim.cmd("color miniwinter")
 -- end)

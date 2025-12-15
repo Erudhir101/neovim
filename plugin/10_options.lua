@@ -110,14 +110,14 @@ local diagnostic_opts = {
   underline = { severity = { min = 'HINT', max = 'ERROR' } },
 
   -- Show more details immediately for errors on the current line
-  virtual_lines = false,
+  -- virtual_lines = false,
   virtual_text = {
     current_line = true,
     severity = { min = 'ERROR', max = 'ERROR' },
   },
 
   -- Don't update diagnostics when typing
-  update_in_insert = false,
+  -- update_in_insert = false,
 }
 
 -- Use `later()` to avoid sourcing `vim.diagnostic` on startup

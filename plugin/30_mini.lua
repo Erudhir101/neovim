@@ -148,8 +148,48 @@ end)
 -- See also:
 -- - `:h MiniStarter-example-config` - non-default config examples
 -- - `:h MiniStarter-lifecycle` - how to work with Starter buffer
+
 now(function()
-  require("mini.starter").setup()
+  local starter = require("mini.starter")
+  local greeting = function()
+    local hour = tonumber(vim.fn.strftime("%H"))
+    -- [04:00, 12:00) - morning, [12:00, 20:00) - day, [20:00, 04:00) - evening
+    local part_id = math.floor((hour + 4) / 8) + 1
+    local day_part = ({ "evening", "morning", "afternoon", "evening" })[part_id]
+    local username = vim.loop.os_get_passwd()["username"] or "USERNAME"
+    return ("Good %s, %s"):format(day_part, username)
+  end
+
+  local longest_line = function(s)
+    local lines = vim.fn.split(s, "\n")
+    local lengths = vim.tbl_map(vim.fn.strdisplaywidth, lines)
+    return math.max(unpack(lengths))
+  end
+  starter.setup({
+    items = {
+      starter.sections.recent_files(3, false, false),
+      {
+        { name = "Mason",          action = "Mason",      section = "Updaters" },
+        { name = "Update plugins", action = "DepsUpdate", section = "Updaters" },
+        { name = "Pick files",     action = "Pick files", section = "Actions" },
+        { name = "Quit Neovim",    action = "qall",       section = "Actions" },
+      }
+    },
+    header = function()
+      local banner = [[
+                 █              █
+
+████████████ ███ ████████ ███
+██████████████ ████ ██████████ ████
+█████ ████ █████ ████ █████ █████ ████
+█████ ████ █████ ████ █████ █████ ████
+█████ ████ ████████ █████ ████████
+]]
+      local msg = greeting()
+      return banner .. string.rep(" ", longest_line(banner) - msg:len()) .. msg
+    end,
+    footer = ""
+  })
 end)
 
 -- Statusline. Sets `:h 'statusline'` to show more info in a line below window.
@@ -391,43 +431,43 @@ end)
 --
 -- It also works with snippet candidates provided by LSP server. Best experience
 -- when paired with 'mini.snippets' (which is set up in this file).
--- later(function()
--- 	-- Customize post-processing of LSP responses for a better user experience.
--- 	-- Don't show 'Text' suggestions (usually noisy) and show snippets last.
--- 	local process_items_opts = {
--- 		kind_priority = {
--- 			Text = -1,
--- 			Snippet = 99,
--- 			Variable = 90,
--- 			Field = 90,
--- 			Function = 80,
--- 			Method = 80,
--- 		},
--- 	}
--- 	local process_items = function(items, base)
--- 		return MiniCompletion.default_process_items(items, base, process_items_opts)
--- 	end
--- 	require("mini.completion").setup({
--- 		lsp_completion = {
--- 			-- Without this config autocompletion is set up through `:h 'completefunc'`.
--- 			-- Although not needed, setting up through `:h 'omnifunc'` is cleaner
--- 			-- (sets up only when needed) and makes it possible to use `<C-u>`.
--- 			source_func = "omnifunc",
--- 			auto_setup = false,
--- 			process_items = process_items,
--- 		},
--- 	})
---
--- 	-- Set 'omnifunc' for LSP completion only when needed.
--- 	local on_attach = function(ev)
--- 		vim.bo[ev.buf].omnifunc = "v:lua.MiniCompletion.completefunc_lsp"
--- 	end
--- 	_G.Config.new_autocmd("LspAttach", nil, on_attach, "Set 'omnifunc'")
---
--- 	-- Advertise to servers that Neovim now supports certain set of completion and
--- 	-- signature features through 'mini.completion'.
--- 	vim.lsp.config("*", { capabilities = MiniCompletion.get_lsp_capabilities() })
--- end)
+later(function()
+  -- Customize post-processing of LSP responses for a better user experience.
+  -- Don't show 'Text' suggestions (usually noisy) and show snippets last.
+  local process_items_opts = {
+    kind_priority = {
+      Text = -1,
+      Snippet = 99,
+      Variable = 90,
+      Field = 90,
+      Function = 80,
+      Method = 80,
+    },
+  }
+  local process_items = function(items, base)
+    return MiniCompletion.default_process_items(items, base, process_items_opts)
+  end
+  require("mini.completion").setup({
+    lsp_completion = {
+      -- Without this config autocompletion is set up through `:h 'completefunc'`.
+      -- Although not needed, setting up through `:h 'omnifunc'` is cleaner
+      -- (sets up only when needed) and makes it possible to use `<C-u>`.
+      source_func = "omnifunc",
+      auto_setup = false,
+      process_items = process_items,
+    },
+  })
+
+  -- Set 'omnifunc' for LSP completion only when needed.
+  local on_attach = function(ev)
+    vim.bo[ev.buf].omnifunc = "v:lua.MiniCompletion.completefunc_lsp"
+  end
+  _G.Config.new_autocmd("LspAttach", nil, on_attach, "Set 'omnifunc'")
+
+  -- Advertise to servers that Neovim now supports certain set of completion and
+  -- signature features through 'mini.completion'.
+  vim.lsp.config("*", { capabilities = MiniCompletion.get_lsp_capabilities() })
+end)
 
 -- Autohighlight word under cursor with a customizable delay.
 -- Word boundaries are defined based on `:h 'iskeyword'` option.
@@ -567,7 +607,8 @@ end)
 -- See also:
 -- - `:h MiniJump2d.gen_spotter` - list of available spotters
 -- later(function()
--- 	require("mini.jump2d").setup()
+--   local jump2d = require("mini.jump2d")
+--   jump2d.setup()
 -- end)
 
 -- Special key mappings. Provides helpers to map:
