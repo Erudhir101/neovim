@@ -135,9 +135,9 @@ end)
 -- - `<Leader>sn` - start new session
 -- - `<Leader>sr` - read previously started session
 -- - `<Leader>sd` - delete previously started session
-now(function()
-  require("mini.sessions").setup()
-end)
+-- now(function()
+--   require("mini.sessions").setup()
+-- end)
 
 -- Start screen. This is what is shown when you open Neovim like `nvim`.
 -- Example usage:
@@ -477,7 +477,7 @@ end)
 later(function()
   _G.cursorword_blocklist = function()
     local curword = vim.fn.expand("<cword>")
-    local blocklist = { "--", "__", "//" }
+    local blocklist = { "--", "__", "//", "#" }
     vim.b.minicursorword_disable = vim.tbl_contains(blocklist, curword)
   end
   vim.cmd("au CursorMoved * lua _G.cursorword_blocklist()")
@@ -625,7 +625,7 @@ end)
 later(function()
   local MiniKeymap = require("mini.keymap")
   MiniKeymap.setup()
-  require("mini.keymap").map_combo({ "i", "c", "x", "s" }, "jk", "<BS><BS><Esc>")
+  MiniKeymap.map_combo({ "i", "c", "x", "s" }, "jk", "<BS><BS><Esc>")
   -- Navigate 'mini.completion' menu with `<Tab>` /  `<S-Tab>`
   MiniKeymap.map_multistep("i", "<Tab>", { "pmenu_next" })
   MiniKeymap.map_multistep("i", "<S-Tab>", { "pmenu_prev" })
@@ -757,8 +757,6 @@ later(function()
     pick.builtin.buffers(local_opts, { mappings = buffer_mappings })
   end
 end)
-
-
 
 -- Manage and expand snippets (templates for a frequently used text).
 -- Typical workflow is to type snippet's (configurable) prefix and expand it

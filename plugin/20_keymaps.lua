@@ -89,11 +89,14 @@ local explore_quickfix = function()
   vim.cmd('copen')
 end
 
-local explore_toggle = '<Cmd>lua if not MiniFiles.close() then MiniFiles.open() end<CR>'
-local explore_at_file = '<Cmd>lua if not MiniFiles.close() then MiniFiles.open(vim.api.nvim_buf_get_name(0)) end<CR>'
+local explore_toggle = function(opts)
+  if not MiniFiles.close() then MiniFiles.open(opts) end
+end
 
 nmap_leader('e', explore_toggle, 'Directory')
-nmap_leader('Ef', explore_at_file, 'File directory')
+nmap_leader('Ef', function()
+  explore_toggle(vim.api.nvim_buf_get_name(0))
+end, 'File directory')
 nmap_leader('Ei', '<Cmd>edit $MYVIMRC<CR>', 'init.lua')
 nmap_leader('En', '<Cmd>lua MiniNotify.show_history()<CR>', 'Notifications')
 

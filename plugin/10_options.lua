@@ -117,7 +117,7 @@ local diagnostic_opts = {
   },
 
   -- Don't update diagnostics when typing
-  -- update_in_insert = false,
+  update_in_insert = false,
 }
 
 -- Use `later()` to avoid sourcing `vim.diagnostic` on startup
