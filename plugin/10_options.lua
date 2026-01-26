@@ -16,14 +16,15 @@
 -- reading. Consider preserving this or remove `-- stylua` lines to autoformat.
 
 -- General ====================================================================
-vim.g.mapleader   = ' '                              -- Use `<Space>` as <Leader> key
+vim.g.mapleader      = ' '                              -- Use `<Space>` as <Leader> key
+vim.g.maplocalleader = ' '                              -- Use `<Space>` as <Leader> key
 
-vim.o.mouse       = 'a'                              -- Enable mouse
-vim.o.mousescroll = 'ver:25,hor:6'                   -- Customize mouse scroll
-vim.o.switchbuf   = 'usetab'                         -- Use already opened buffers when switching
-vim.o.undofile    = true                             -- Enable persistent undo
+vim.o.mouse          = 'a'                              -- Enable mouse
+vim.o.mousescroll    = 'ver:25,hor:6'                   -- Customize mouse scroll
+vim.o.switchbuf      = 'usetab'                         -- Use already opened buffers when switching
+vim.o.undofile       = true                             -- Enable persistent undo
 
-vim.o.shada       = "'100,<50,s10,:1000,/100,@100,h" -- Limit ShaDa file (for startup)
+vim.o.shada          = "'100,<50,s10,:1000,/100,@100,h" -- Limit ShaDa file (for startup)
 
 -- Enable all filetype plugins and syntax (if not enabled, for better startup)
 vim.cmd('filetype plugin indent on')
@@ -32,7 +33,7 @@ if vim.fn.exists('syntax_on') ~= 1 then vim.cmd('syntax enable') end
 -- UI =========================================================================
 vim.o.breakindent    = true                -- Indent wrapped lines to match line start
 vim.o.breakindentopt = 'list:-1'           -- Add padding for lists (if 'wrap' is set)
-vim.o.colorcolumn    = '+1'                -- Draw column on the right of maximum width
+-- vim.o.colorcolumn    = '+1'                 -- Draw column on the right of maximum width
 vim.o.cursorline     = true                -- Enable current line highlighting
 vim.o.linebreak      = true                -- Wrap lines at 'breakat' (if 'wrap' is set)
 vim.o.list           = false               -- Show helpful text indicators
@@ -84,7 +85,7 @@ vim.o.formatlistpat  = [[^\s*[0-9\-\+\*]\+[\.\)]*\s\+]]
 
 -- Built-in completion
 vim.o.complete       = '.,w,b,kspell'                  -- Use less sources
-vim.o.completeopt    = 'menuone,noselect,fuzzy,nosort' -- Use custom behavior
+vim.o.completeopt    = 'menuone,noinsert,fuzzy,nosort' -- Use custom behavior
 
 vim.o.clipboard      = "unnamedplus"                   --clipboard shared with system
 
