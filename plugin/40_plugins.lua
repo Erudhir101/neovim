@@ -127,6 +127,7 @@ now_if_args(function()
     -- These are already pre-installed with Neovim. Used as an example.
     "bash",
     "c",
+    "c3",
     "cpp",
     "css",
     "dockerfile",
@@ -177,85 +178,90 @@ end)
 
 -- Completion ===========================================================
 
--- local function build_blink(params)
---   vim.notify("Building blink.cmp", vim.log.levels.INFO)
---   local obj = vim.system({ "cargo", "build", "--release" }, { cwd = params.path }):wait()
---   if obj.code == 0 then
---     vim.notify("Building blink.cmp done", vim.log.levels.INFO)
---   else
---     vim.notify("Building blink.cmp failed", vim.log.levels.ERROR)
---   end
--- end
+local function build_blink(params)
+  vim.notify("Building blink.cmp", vim.log.levels.INFO)
+  local obj = vim.system({ "cargo", "build", "--release" }, { cwd = params.path }):wait()
+  if obj.code == 0 then
+    vim.notify("Building blink.cmp done", vim.log.levels.INFO)
+  else
+    vim.notify("Building blink.cmp failed", vim.log.levels.ERROR)
+  end
+end
 
--- now(function()
---   add({
---     source = "saghen/blink.cmp",
---     depends = { "rafamadriz/friendly-snippets", "echasnovski/mini.icons" },
---     -- checkout = "1.6.0",
---     hooks = {
---       post_install = build_blink,
---       post_checkout = build_blink,
---     },
---   })
---   local border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
---   require("blink.cmp").setup({
---     keymap = { preset = "default", ["<C-y>"] = { "accept", "fallback" } },
---     appearance = {
---       nerd_font_variant = "mono",
---     },
---     fuzzy = { implementation = "lua" },
---     completion = {
---       keyword = { range = "full" },
---       menu = {
---         auto_show = true,
---         border = border,
---         draw = {
---           columns = {
---             { "kind_icon", "kind",              gap = 1 },
---             { "label",     "label_description", gap = 1 },
---           },
---           components = {
---             kind_icon = {
---               text = function(ctx)
---                 local kind_icon, _, _ = require("mini.icons").get("lsp", ctx.kind)
---                 return kind_icon
---               end,
---               highlight = function(ctx)
---                 local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
---                 return hl
---               end,
---             },
---             kind = {
---               highlight = function(ctx)
---                 local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
---                 return hl
---               end,
---             },
---           },
---         },
---       },
---       documentation = {
---         window = {
---           border = border,
---         },
---         auto_show = true,
---       },
---       trigger = {
---         show_on_keyword = true,
---       },
---     },
---     sources = {
---       default = { "lsp", "path", "snippets", "buffer" },
---     },
---   })
---
---   local on_attach = function(ev)
---     vim.bo[ev.buf].omnifunc = "v:lua.vim.lsp.omnifunc"
---   end
---   _G.Config.new_autocmd("LspAttach", nil, on_attach, "Set 'omnifunc'")
---
---   vim.lsp.config("*", require("blink.cmp").get_lsp_capabilities())
--- end)
+now(function()
+  add({
+    source = "saghen/blink.cmp",
+    depends = { "rafamadriz/friendly-snippets", "echasnovski/mini.icons" },
+    -- checkout = "1.6.0",
+    hooks = {
+      post_install = build_blink,
+      post_checkout = build_blink,
+    },
+  })
+  local border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
+  require("blink.cmp").setup({
+    keymap = { preset = "default", ["<C-y>"] = { "accept", "fallback" } },
+    appearance = {
+      nerd_font_variant = "mono",
+    },
+    fuzzy = { implementation = "lua" },
+    completion = {
+      keyword = { range = "full" },
+      menu = {
+        auto_show = true,
+        border = border,
+        draw = {
+          columns = {
+            { "kind_icon", "kind",              gap = 1 },
+            { "label",     "label_description", gap = 1 },
+          },
+          components = {
+            kind_icon = {
+              text = function(ctx)
+                local kind_icon, _, _ = MiniIcons.get("lsp", ctx.kind)
+                return kind_icon
+              end,
+              highlight = function(ctx)
+                local _, hl, _ = MiniIcons.get("lsp", ctx.kind)
+                return hl
+              end,
+            },
+            kind = {
+              highlight = function(ctx)
+                local _, hl, _ = MiniIcons.get("lsp", ctx.kind)
+                return hl
+              end,
+            },
+          },
+        },
+      },
+      documentation = {
+        window = {
+          border = border,
+        },
+        auto_show = true,
+      },
+      trigger = {
+        show_on_keyword = true,
+      },
+    },
+    sources = {
+      default = { "lsp", "path", "snippets", "buffer" },
+    },
+  })
+
+  local on_attach = function(ev)
+    vim.bo[ev.buf].omnifunc = "v:lua.vim.lsp.omnifunc"
+  end
+  _G.Config.new_autocmd("LspAttach", nil, on_attach, "Set 'omnifunc'")
+
+  vim.lsp.config("*", require("blink.cmp").get_lsp_capabilities())
+
+  local colors = MiniHues.get_palette()
+
+  vim.api.nvim_set_hl(0, "BlinkCmpMenu", { bg = colors.bg });
+  vim.api.nvim_set_hl(0, "BlinkCmpMenuBorder", { bg = colors.bg });
+end)
 -- Language servers ===========================================================
 
 -- Language Server Protocol (LSP) is a set of conventions that power creation of
@@ -276,7 +282,9 @@ now_if_args(function()
 
   local lsp = {
     clangd = {},
+    cssls = {},
     eslint_d = {},
+    jdtls = {},
     lua_ls = {},
     prettierd = {},
     stylua = {},
@@ -284,6 +292,7 @@ now_if_args(function()
     tailwindcss = {},
     vtsls = {},
     zls = {},
+    qmlls = {},
   }
   vim.lsp.enable(vim.tbl_keys(lsp))
   -- Use `:h vim.lsp.enable()` to automatically enable language server based on
@@ -332,7 +341,8 @@ later(function()
       graphql = prettier,
       -- sql = { "sql-formatter" },
       lua = { "stylua" },
-      -- c = { "clang-format" },
+      c = { "clang-format" },
+      cpp = { "clang-format" },
       -- rust = { "ast_grep" },
       -- python = { "isort", "black" },
       -- bash = { "shfmt" },
@@ -349,8 +359,8 @@ later(function()
         prepend_args = { "-s3", "-c", "-J", "-n", "-q", "-z2", "-xC80" },
       },
       ["clang-format"] = {
-        command = "clang-format",
-        prepend_args = { "--style=file", "-i" },
+        -- command = "clang-format",
+        prepend_args = { "--style=file" },
       },
       ["cmake-format"] = {
         command = "cmake-format",
@@ -436,14 +446,44 @@ end)
 -- Beautiful, usable, well maintained color schemes outside of 'mini.nvim' and
 -- have full support of its highlight groups. Use if you don't like 'miniwinter'
 -- enabled in 'plugin/30_mini.lua' or other suggested 'mini.hues' based ones.
--- MiniDeps.now(function()
---   -- Install only those that you need
--- add('sainnhe/everforest')
--- add('Shatur/neovim-ayu')
--- add('ellisonleao/gruvbox.nvim')
-add("folke/tokyonight.nvim")
+now(function()
+  --   -- Install only those that you need
+  -- add('sainnhe/everforest')
+  -- add('Shatur/neovim-ayu')
+  -- add('ellisonleao/gruvbox.nvim')
+  add("folke/tokyonight.nvim")
+  add("vague-theme/vague.nvim")
+  --
+  --   -- Enable only one
+  -- vim.cmd("color tokyonight")
+  -- vim.cmd("color vague")
+  -- vim.cmd("color miniwinter")
+end)
+
+
+-- AI plugin ================================================================
+
+-- later(function()
+--   add("NickvanDyke/opencode.nvim")
 --
---   -- Enable only one
-vim.cmd("color tokyonight")
--- vim.cmd("color miniwinter")
+--   vim.g.opencode_opts = {
+--     provider = {
+--       enabled = "kitty",
+--       kitty = {
+--       }
+--     }
+--   }
+--
+--   -- Required for `opts.events.reload`.
+--   vim.o.autoread = true
+--
+--   -- Recommended/example keymaps.
+--   vim.keymap.set({ "n", "x" }, "<leader>oa", function() require("opencode").ask("@this: ", { submit = true }) end,
+--     { desc = "Ask opencode…" })
+--
+--   vim.keymap.set({ "n", "x" }, "<leader>ox", function() require("opencode").select() end,
+--     { desc = "Execute opencode action…" })
+--
+--   vim.keymap.set({ "n", "x" }, "<leader>or", function() return require("opencode").operator("@this ") end,
+--     { desc = "Add range to opencode", expr = true })
 -- end)
