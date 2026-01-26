@@ -34,10 +34,14 @@ local now_if_args = _G.Config.now_if_args
 -- - `:h mini.nvim-color-schemes` - list of other color schemes
 -- - `:h MiniHues-examples` - how to define highlighting with 'mini.hues'
 -- - 'plugin/40_plugins.lua' honorable mentions - other good color schemes
--- now(function()
--- 	vim.cmd("colorscheme miniwinter")
--- end)
-
+now(function()
+  -- vim.cmd('colorscheme miniwinter')
+  require "mini.hues".setup {
+    background = '#11262d',
+    foreground = '#c0c8cc',
+    saturation = "high"
+  }
+end)
 -- You can try these other 'mini.hues'-based color schemes (uncomment with `gcc`):
 -- now(function() vim.cmd('colorscheme minispring') end)
 -- now(function() vim.cmd('colorscheme minisummer') end)
@@ -127,7 +131,18 @@ end)
 -- See also:
 -- - `:h MiniNotify.config` for some of common configuration examples.
 now(function()
-  require("mini.notify").setup()
+  local notify = require("mini.notify")
+  notify.setup({
+    content = {
+      sort = function(notif_arr)
+        local filtered = vim.tbl_filter(function(notif)
+          local msg = notif.msg or ""
+          return not msg:match("jdtls")
+        end, notif_arr)
+        return notify.default_sort(filtered)
+      end
+    }
+  })
 end)
 
 -- Session management. A thin wrapper around `:h mksession` that consistently
@@ -377,6 +392,12 @@ later(function()
   })
 end)
 
+-- Command line tweaks. Improves command line editing with:
+-- - Autocompletion. Basically an automated `:h cmdline-completion`.
+-- - Autocorrection of words as-you-type. Like `:W`->`:w`, `:lau`->`:lua`, etc.
+-- - Autopeek command range (like line number at the start) as-you-type.
+later(function() require('mini.cmdline').setup() end)
+
 -- Tweak and save any color scheme. Contains utility functions to work with
 -- color spaces and color schemes. Example usage:
 -- - `:Colorscheme default` - switch with animation to the default color scheme
@@ -431,43 +452,43 @@ end)
 --
 -- It also works with snippet candidates provided by LSP server. Best experience
 -- when paired with 'mini.snippets' (which is set up in this file).
-later(function()
-  -- Customize post-processing of LSP responses for a better user experience.
-  -- Don't show 'Text' suggestions (usually noisy) and show snippets last.
-  local process_items_opts = {
-    kind_priority = {
-      Text = -1,
-      Snippet = 99,
-      Variable = 90,
-      Field = 90,
-      Function = 80,
-      Method = 80,
-    },
-  }
-  local process_items = function(items, base)
-    return MiniCompletion.default_process_items(items, base, process_items_opts)
-  end
-  require("mini.completion").setup({
-    lsp_completion = {
-      -- Without this config autocompletion is set up through `:h 'completefunc'`.
-      -- Although not needed, setting up through `:h 'omnifunc'` is cleaner
-      -- (sets up only when needed) and makes it possible to use `<C-u>`.
-      source_func = "omnifunc",
-      auto_setup = false,
-      process_items = process_items,
-    },
-  })
-
-  -- Set 'omnifunc' for LSP completion only when needed.
-  local on_attach = function(ev)
-    vim.bo[ev.buf].omnifunc = "v:lua.MiniCompletion.completefunc_lsp"
-  end
-  _G.Config.new_autocmd("LspAttach", nil, on_attach, "Set 'omnifunc'")
-
-  -- Advertise to servers that Neovim now supports certain set of completion and
-  -- signature features through 'mini.completion'.
-  vim.lsp.config("*", { capabilities = MiniCompletion.get_lsp_capabilities() })
-end)
+-- later(function()
+--   -- Customize post-processing of LSP responses for a better user experience.
+--   -- Don't show 'Text' suggestions (usually noisy) and show snippets last.
+--   local process_items_opts = {
+--     kind_priority = {
+--       Text = -1,
+--       Snippet = 99,
+--       Variable = 90,
+--       Field = 90,
+--       Function = 80,
+--       Method = 80,
+--     },
+--   }
+--   local process_items = function(items, base)
+--     return MiniCompletion.default_process_items(items, base, process_items_opts)
+--   end
+--   require("mini.completion").setup({
+--     lsp_completion = {
+--       -- Without this config autocompletion is set up through `:h 'completefunc'`.
+--       -- Although not needed, setting up through `:h 'omnifunc'` is cleaner
+--       -- (sets up only when needed) and makes it possible to use `<C-u>`.
+--       source_func = "omnifunc",
+--       auto_setup = false,
+--       process_items = process_items,
+--     },
+--   })
+--
+--   -- Set 'omnifunc' for LSP completion only when needed.
+--   local on_attach = function(ev)
+--     vim.bo[ev.buf].omnifunc = "v:lua.MiniCompletion.completefunc_lsp"
+--   end
+--   _G.Config.new_autocmd("LspAttach", nil, on_attach, "Set 'omnifunc'")
+--
+--   -- Advertise to servers that Neovim now supports certain set of completion and
+--   -- signature features through 'mini.completion'.
+--   vim.lsp.config("*", { capabilities = MiniCompletion.get_lsp_capabilities() })
+-- end)
 
 -- Autohighlight word under cursor with a customizable delay.
 -- Word boundaries are defined based on `:h 'iskeyword'` option.
@@ -800,32 +821,32 @@ end)
 -- - `:h MiniSnippets-examples` - examples of common setups
 -- - `:h MiniSnippets-session` - details about snippet session
 -- - `:h MiniSnippets.gen_loader` - list of available loaders
-later(function()
-  -- Define language patterns to work better with 'friendly-snippets'
-  local latex_patterns = { "latex/**/*.json", "**/latex.json" }
-  local lang_patterns = {
-    tex = latex_patterns,
-    plaintex = latex_patterns,
-    -- Recognize special injected language of markdown tree-sitter parser
-    markdown_inline = { "markdown.json" },
-  }
-
-  local MiniSnippets = require("mini.snippets")
-  local config_path = vim.fn.stdpath("config")
-  MiniSnippets.setup({
-    snippets = {
-      -- Always load 'snippets/global.json' from config directory
-      MiniSnippets.gen_loader.from_file(config_path .. "/snippets/global.json"),
-      -- Load from 'snippets/' directory of plugins, like 'friendly-snippets'
-      MiniSnippets.gen_loader.from_lang({ lang_patterns = lang_patterns }),
-    },
-  })
-
-  -- By default snippets available at cursor are not shown as candidates in
-  -- 'mini.completion' menu. This requires a dedicated in-process LSP server
-  -- that will provide them. To have that, uncomment next line (use `gcc`).
-  MiniSnippets.start_lsp_server()
-end)
+-- later(function()
+--   -- Define language patterns to work better with 'friendly-snippets'
+--   local latex_patterns = { "latex/**/*.json", "**/latex.json" }
+--   local lang_patterns = {
+--     tex = latex_patterns,
+--     plaintex = latex_patterns,
+--     -- Recognize special injected language of markdown tree-sitter parser
+--     markdown_inline = { "markdown.json" },
+--   }
+--
+--   local MiniSnippets = require("mini.snippets")
+--   local config_path = vim.fn.stdpath("config")
+--   MiniSnippets.setup({
+--     snippets = {
+--       -- Always load 'snippets/global.json' from config directory
+--       MiniSnippets.gen_loader.from_file(config_path .. "/snippets/global.json"),
+--       -- Load from 'snippets/' directory of plugins, like 'friendly-snippets'
+--       MiniSnippets.gen_loader.from_lang({ lang_patterns = lang_patterns }),
+--     },
+--   })
+--
+--   -- By default snippets available at cursor are not shown as candidates in
+--   -- 'mini.completion' menu. This requires a dedicated in-process LSP server
+--   -- that will provide them. To have that, uncomment next line (use `gcc`).
+--   MiniSnippets.start_lsp_server()
+-- end)
 
 -- Split and join arguments (regions inside brackets between allowed separators).
 -- It uses Lua patterns to find arguments, which means it works in comments and
